@@ -1,7 +1,6 @@
 package data
 
 import (
-	"os/user"
 	"time"
 )
 
@@ -51,7 +50,7 @@ func (thread *Thread) Posts() (posts []Post, err error) {
 	}
 	for rows.Next() {
 		post := Post{}
-		if err = rows.Scan(&post.id, &post.uuid, &post.Body, &post.UserId, &post.ThreadId, &post.CreatedAt); err != nil {
+		if err = rows.Scan(&post.Id, &post.Uuid, &post.Body, &post.UserId, &post.ThreadId, &post.CreatedAt); err != nil {
 			return
 		}
 		posts = append(posts, post)
@@ -67,19 +66,20 @@ func (user *User) CreateThread(topic string) (conv Thread, err error) {
 		return
 	}
 	defer stmt.Close()
-	err = stmt.QueryRow(createUUID(), topic, user.Id, time.Now()).Scan((&conv.Id, &conv.Uuid, &conv.Topic, &conv.UserId, &conv.CreatedAt))
+	err = stmt.QueryRow(createUUID(), topic, user.Id, time.Now()).Scan(&conv.Id, &conv.Uuid, &conv.Topic, &conv.UserId, &conv.CreatedAt)
 	return
 }
 
-func (user *User) CreatePost(Conv Thread, body string) (post Post, err error) {
-	statement := "insert into posts (uuid, body, user_id, thread_id, created_at) values ($1, $2, $3, $4, $5) returning id, uuid, body, user_id, thread_id, created_at")
-	stmt, err := Db.Prepare(statestatement)
+func (user *User) CreatePost(conv Thread, body string) (post Post, err error) {
+	statement := "insert into posts (uuid, body, user_id, thread_id, created_at) values ($1, $2, $3, $4, $5) returning id, uuid, body, user_id, thread_id, created_at)"
+	stmt, err := Db.Prepare(statement)
 	if err != nil {
 		return
 	}
 	defer stmt.Close()
 	err = stmt.QueryRow(createUUID(), body, user.Id, conv.Id, time.Now()).Scan(&post.Id, &post.Uuid, &post.Body, &post.UserId, &post.ThreadId, &post.CreatedAt)
 	return
+
 }
 
 func Threads() (threads []Thread, err error) {

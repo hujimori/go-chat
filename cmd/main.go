@@ -21,45 +21,29 @@ func index(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func err(w http.ResponseWriter, r *http.Request) {
-}
+// func err(w http.ResponseWriter, r *http.Request) {
+// }
 
-func login(w http.ResponseWriter, r *http.Request) {
+// func login(w http.ResponseWriter, r *http.Request) {
 
-}
+// }
 
-func logout(w http.ResponseWriter, r *http.Request) {
+// func logout(w http.ResponseWriter, r *http.Request) {
 
-}
+// }
 
-func signup(w http.ResponseWriter, r *http.Request) {
+// func signup(w http.ResponseWriter, r *http.Request) {
 
-}
+// }
 
-func signupAccount(w http.ResponseWriter, r *http.Request) {
+// func signupAccount(w http.ResponseWriter, r *http.Request) {
 
-}
+// }
 
-func authenticate(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
-	user, _ := data.
-}
-
-func newThread(w http.ResponseWriter, r *http.Request) {
-
-}
-
-func createThread(w http.ResponseWriter, r *http.Request) {
-
-}
-
-func postThread(w http.ResponseWriter, r *http.Request) {
-
-}
-
-func readThread(w http.ResponseWriter, r *http.Request) {
-
-}
+// func authenticate(w http.ResponseWriter, r *http.Request) {
+// 	r.ParseForm()
+// 	user, _ := data.
+// }
 
 func main() {
 	mux := http.NewServeMux()
@@ -67,13 +51,13 @@ func main() {
 	mux.Handle("/static", http.StripPrefix("/static/", files))
 
 	mux.HandleFunc("/", index)
-	mux.HandleFunc("/err", err)
+	// mux.HandleFunc("/err", err)
 
-	mux.HandleFunc("/login", login)
-	mux.HandleFunc("/logout", logout)
-	mux.HandleFunc("/signup", signup)
-	mux.HandleFunc("/signup_account", signupAccount)
-	mux.HandleFunc("/authenticate", authenticate)
+	// mux.HandleFunc("/login", login)
+	// mux.HandleFunc("/logout", logout)
+	// mux.HandleFunc("/signup", signup)
+	// mux.HandleFunc("/signup_account", signupAccount)
+	// mux.HandleFunc("/authenticate", authenticate)
 
 	mux.HandleFunc("/thread/new", newThread)
 	mux.HandleFunc("/thread/create", createThread)

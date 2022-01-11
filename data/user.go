@@ -24,7 +24,7 @@ type Session struct {
 func (user *User) CreateSession() (session Session, err error) {
 	statement := "insert into sessions (uuid, email, user_id, created_at) values ($1, $2, $3, $4) returning id, uuid, email, user_id, creatd_at"
 	stmt, err := Db.Prepare(statement)
-	if err != nill {
+	if err != nil {
 		return
 	}
 	defer stmt.Close()
@@ -34,12 +34,12 @@ func (user *User) CreateSession() (session Session, err error) {
 
 func (user *User) Session() (session Session, err error) {
 	session = Session{}
-	err = Db.QueryRow("SELECT id, uuid, email, user_id, created_at FROM sessions WHERE user_id $1", user_id).Scan(&session.Id, &session.Uuid, &session.Email, &session.UserId, &session.CreatedAt)
+	err = Db.QueryRow("SELECT id, uuid, email, user_id, created_at FROM sessions WHERE user_id $1", user.Id).Scan(&session.Id, &session.Uuid, &session.Email, &session.UserId, &session.CreatedAt)
 	return
 }
 
 func (session *Session) Check() (valid bool, err error) {
-	err = Db.QueryRow("SELECT id, uuid, email, user_id, created_at, FROM sessions WHERE uuid = $1", session.Uuid).Scan(&session.Id, &session.Uuid, &session.Email, &session.UserId, &session.CreatedAt).Scan(&session.Id, &session.Uuid, &session.Email, &session.UserId, &session.CreatedAt)
+	err = Db.QueryRow("SELECT id, uuid, email, user_id, created_at, FROM sessions WHERE uuid = $1", session.Uuid).Scan(&session.Id, &session.Uuid, &session.Email, &session.UserId, &session.CreatedAt)
 
 	if err != nil {
 		valid = false
@@ -62,6 +62,12 @@ func (session *Session) DeleteByUUID() (err error) {
 	return
 }
 
+func (session *Session) User() (user User, err error) {
+	user = User{}
+	err = Db.QueryRow("SELECT id, uuid, name, email, created_at FROM users WHERE id = $1", session.UserId).Scan(&user.Id, &user.Uuid, &user.Name, &user.Email, &user.CreatedAt)
+	return
+}
+
 func Users() (users []User, err error) {
 	rows, err := Db.Query("SELECT id, uuid, name, email, password, created_at FROM users ORDER BY created_at DESC")
 
@@ -71,7 +77,7 @@ func Users() (users []User, err error) {
 
 	for rows.Next() {
 		user := User{}
-		if err = rows.Scan(&user.Id, &user.Uuid, &user.name, &user.email, &user.password, &user.CreatedAt); err != nil {
+		if err = rows.Scan(&user.Id, &user.Uuid, &user.Name, &user.Email, &user.Password, &user.CreatedAt); err != nil {
 			return
 		}
 		users = append(users, user)
@@ -94,7 +100,7 @@ func (user *User) Create() (err error) {
 	}
 	defer stmt.Close()
 
-	err = stmt.QueryRow(createUUID(), user.Name, user.Email, Encrypt(user.Password), time.Now()).Scan((&user.Id, &user.Uuid, &user.CreatedAt))
+	err = stmt.QueryRow(createUUID(), user.Name, user.Email, Encrypt(user.Password), time.Now()).Scan(&user.Id, &user.Uuid, &user.CreatedAt)
 	return
 }
 
@@ -108,7 +114,7 @@ func (user *User) Delete() (err error) {
 
 	_, err = stmt.Exec(user.Id)
 	return
-	
+
 }
 
 func (user *User) Update() (err error) {
@@ -118,7 +124,7 @@ func (user *User) Update() (err error) {
 		return
 	}
 	defer stmt.Close()
-	
+
 	_, err = stmt.Exec(user.Id, user.Name, user.Email)
 	return
 }
@@ -131,11 +137,17 @@ func UserByEmail(email string) (user User, err error) {
 	}
 
 	for rows.Next() {
-		if err = rows.Scan(&user.Id, &user.Uuid, &user.name, &user.email, &user.password, &user.CreatedAt); err != nil {
+		if err = rows.Scan(&user.Id, &user.Uuid, &user.Name, &user.Email, &user.Password, &user.CreatedAt); err != nil {
 			return
 		}
 	}
 	rows.Close()
 	return
 
+}
+
+func UserDeleteAll() (err error) {
+	statement := "delete from users"
+	_, err = Db.Exec(statement)
+	return
 }
